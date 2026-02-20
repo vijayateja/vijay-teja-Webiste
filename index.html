@@ -5,565 +5,132 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vijay Teja | Personal Dashboard</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; display: flex; flex-direction: column; align-items: center; padding: 50px; }
-        h1 { color: #333; margin-bottom: 30px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; width: 100%; max-width: 900px; }
-        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-decoration: none; color: #333; text-align: center; transition: 0.3s; border: 2px solid transparent; }
-        .card:hover { transform: translateY(-5px); border-color: #007bff; }
-        .card h2 { margin: 0; color: #007bff; }
-        .add-new { background: #e9ecef; border: 2px dashed #adb5bd; color: #6c757d; }
+        :root {
+            --primary: #007bff;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+        }
+        body { 
+            font-family: 'Inter', 'Segoe UI', sans-serif; 
+            background: var(--bg); 
+            color: var(--text);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center; 
+        }
+        .header { text-align: center; margin-bottom: 50px; }
+        .header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 10px; }
+        .header p { color: #64748b; font-size: 1.1rem; }
+
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 25px; 
+            width: 100%; 
+            max-width: 1100px; 
+        }
+
+        .card { 
+            background: var(--card-bg); 
+            padding: 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); 
+            text-decoration: none; 
+            color: inherit; 
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover { 
+            transform: translateY(-8px); 
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+            border-color: var(--primary);
+        }
+
+        .card .icon { font-size: 2rem; margin-bottom: 15px; }
+        .card h2 { margin: 0; font-size: 1.25rem; color: var(--text); }
+        .card p { color: #64748b; font-size: 0.9rem; margin: 10px 0 20px 0; line-height: 1.5; }
+        
+        .btn-launch {
+            margin-top: auto;
+            background: #f1f5f9;
+            color: var(--primary);
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: background 0.2s;
+        }
+        .card:hover .btn-launch {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Status Badge */
+        .badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            background: #dcfce7;
+            color: #166534;
+        }
     </style>
 </head>
 <body>
 
-    <h1>Vijay Teja's Dashboard</h1>
+    <div class="header">
+        <h1>Vijay's Workspace</h1>
+        <p>Select a module to begin your session</p>
+    </div>
 
     <div class="grid">
-        <a href="#" class="card">
-             import React, { useState, useEffect, useMemo } from 'react';
-import { initializeApp } from 'firebase/app';
-import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore, doc, setDoc, onSnapshot, collection } from 'firebase/firestore';
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-} from 'chart.js';
-import { Doughnut, Bar } from 'react-chartjs-2';
+        <a href="#finance" class="card" onclick="openApp('finance')">
+            <div class="badge">Live Sync</div>
+            <div class="icon">💰</div>
+            <h2>FinanceFlow</h2>
+            <p>Real-time income tracking for Uber, Lyft, and DoorDash with automated expense logging.</p>
+            <div class="btn-launch">Launch App</div>
+        </a>
 
-ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
+        <a href="#activity" class="card">
+            <div class="icon">📅</div>
+            <h2>Daily Activity</h2>
+            <p>Manage your habits, to-do lists, and productivity metrics in one unified view.</p>
+            <div class="btn-launch">Open Planner</div>
+        </a>
 
-// Firebase Configuration
-const firebaseConfig = JSON.parse(__firebase_config);
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'finance-tracker-v2';
+        <a href="#study" class="card">
+            <div class="icon">📚</div>
+            <h2>Study Hub</h2>
+            <p>Access your courses, certifications, and active learning paths.</p>
+            <div class="btn-launch">View Courses</div>
+        </a>
 
-const CREDIT_LIMITS = { venture: 1000, savor: 400 };
-
-// Seasonal Theme Configuration
-const SEASON_THEMES = [
-  {
-    name: 'Winter',
-    id: 'winter',
-    bg: 'from-[#0f172a] via-[#1e293b] to-[#334155]',
-    glow: 'bg-blue-400/20',
-    accent: 'text-blue-400',
-    border: 'border-blue-500/20',
-    particles: ['❄️', '🧊', '✨'],
-    label: 'Glacial Calm'
-  },
-  {
-    name: 'Spring',
-    id: 'spring',
-    bg: 'from-[#064e3b] via-[#065f46] to-[#0d9488]',
-    glow: 'bg-emerald-500/20',
-    accent: 'text-emerald-400',
-    border: 'border-emerald-500/20',
-    particles: ['🌸', '🌱', '🍃'],
-    label: 'Verdant Growth'
-  },
-  {
-    name: 'Summer',
-    id: 'summer',
-    bg: 'from-[#7c2d12] via-[#92400e] to-[#b45309]',
-    glow: 'bg-yellow-500/10',
-    accent: 'text-yellow-400',
-    border: 'border-yellow-500/20',
-    particles: ['☀️', '🦋', '🔥'],
-    label: 'Solar Energy'
-  },
-  {
-    name: 'Fall',
-    id: 'fall',
-    bg: 'from-[#4c1d95] via-[#5b21b6] to-[#7c3aed]',
-    glow: 'bg-orange-500/10',
-    accent: 'text-orange-400',
-    border: 'border-orange-500/20',
-    particles: ['🍂', '🍁', '🍄'],
-    label: 'Autumn Harvest'
-  }
-];
-
-export default function App() {
-  const [user, setUser] = useState(null);
-  const [currentMonth, setCurrentMonth] = useState(new Date().toISOString().slice(0, 7));
-  const [isEditing, setIsEditing] = useState(false);
-  const [seasonIndex, setSeasonIndex] = useState(0);
-  const [isSyncing, setIsSyncing] = useState(false);
-
-  // Financial Data State
-  const [income, setIncome] = useState({ uber: 0, lyft: 0, doordash: 0, grubhub: 0 });
-  const [savings, setSavings] = useState(0);
-  const [dailyExpenses, setDailyExpenses] = useState([]);
-  const [bills, setBills] = useState([
-    { name: "Rent", amount: 2300, icon: "🏠" },
-    { name: "Car Payment", amount: 480, icon: "🚗" },
-    { name: "Insurance", amount: 200, icon: "🛡️" },
-    { name: "Gas", amount: 400, icon: "⛽" },
-    { name: "Internet", amount: 100, icon: "🌐" },
-    { name: "Mobile", amount: 65, icon: "📱" },
-    { name: "Power", amount: 200, icon: "⚡" },
-    { name: "Streaming", amount: 100, icon: "📺" },
-    { name: "Health Ins", amount: 400, icon: "🏥" },
-    { name: "Grocery", amount: 1000, icon: "🛒" },
-    { name: "Other", amount: 200, icon: "📦" }
-  ]);
-  
-  const [inputMode, setInputMode] = useState({ venture: 'remaining', savor: 'remaining' }); 
-  const [credit, setCredit] = useState({ venture: 0, savor: 0 });
-  const [payments, setPayments] = useState({ venture: 0, savor: 0 }); 
-
-  // (1) Cycle seasons every 60 seconds
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setSeasonIndex((prev) => (prev + 1) % SEASON_THEMES.length);
-    }, 60000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const theme = SEASON_THEMES[seasonIndex];
-
-  // (2) Auth Listener - RULE 3
-  useEffect(() => {
-    const initAuth = async () => {
-      if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-        await signInWithCustomToken(auth, __initial_auth_token);
-      } else {
-        await signInAnonymously(auth);
-      }
-    };
-    initAuth();
-    const unsubscribe = onAuthStateChanged(auth, setUser);
-    return () => unsubscribe();
-  }, []);
-
-  // (3) Data Fetcher - RULE 1 & 2
-  useEffect(() => {
-    if (!user) return;
-    const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'monthlyData', currentMonth);
-    const unsubscribe = onSnapshot(docRef, (docSnap) => {
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        if (data.income) setIncome(data.income);
-        if (data.savings !== undefined) setSavings(data.savings);
-        if (data.bills) setBills(data.bills);
-        if (data.credit) setCredit(data.credit);
-        if (data.payments) setPayments(data.payments);
-        if (data.inputMode) setInputMode(data.inputMode);
-        if (data.dailyExpenses) setDailyExpenses(data.dailyExpenses);
-      }
-    }, (err) => console.error("Firestore error:", err));
-    return () => unsubscribe();
-  }, [user, currentMonth]);
-
-  // (4) Instant Save Function
-  const saveData = async (updates) => {
-    if (!user) return;
-    setIsSyncing(true);
-    try {
-      const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'monthlyData', currentMonth);
-      await setDoc(docRef, { ...updates, updatedAt: new Date().toISOString() }, { merge: true });
-    } catch (err) {
-      console.error("Save error:", err);
-    } finally {
-      setTimeout(() => setIsSyncing(false), 500); // Visual feedback
-    }
-  };
-
-  // Financial Calculations
-  const totalIncome = Object.values(income).reduce((a, b) => a + b, 0);
-  const totalBills = bills.reduce((a, b) => a + b.amount, 0);
-  const totalPaymentsToCredit = (payments.venture || 0) + (payments.savor || 0);
-  const totalDailySpent = dailyExpenses.reduce((a, b) => a + (parseFloat(b.amount) || 0), 0);
-  const checkingBalance = totalIncome - totalBills - totalPaymentsToCredit - savings - totalDailySpent;
-
-  const getDebtOwed = (card) => {
-    if (inputMode[card] === 'remaining') return Math.max(0, CREDIT_LIMITS[card] - (credit[card] || 0));
-    return Math.max(0, (credit[card] || 0) - (payments[card] || 0));
-  };
-
-  const currentBalances = { venture: getDebtOwed('venture'), savor: getDebtOwed('savor') };
-  const totalDebtBalance = currentBalances.venture + currentBalances.savor;
-
-  // Event Handlers
-  const addExpense = () => {
-    const newExpenses = [...dailyExpenses, { id: Date.now(), date: new Date().toISOString().split('T')[0], item: '', amount: 0 }];
-    setDailyExpenses(newExpenses);
-    saveData({ dailyExpenses: newExpenses });
-  };
-
-  const updateExpense = (id, field, value) => {
-    const newExpenses = dailyExpenses.map(exp => exp.id === id ? { ...exp, [field]: value } : exp);
-    setDailyExpenses(newExpenses);
-    saveData({ dailyExpenses: newExpenses });
-  };
-
-  const removeExpense = (id) => {
-    const newExpenses = dailyExpenses.filter(exp => exp.id !== id);
-    setDailyExpenses(newExpenses);
-    saveData({ dailyExpenses: newExpenses });
-  };
-
-  const handleIncomeChange = (platform, value) => {
-    const val = parseFloat(value) || 0;
-    const n = { ...income, [platform]: val };
-    setIncome(n);
-    saveData({ income: n });
-  };
-
-  const handleSavingsChange = (value) => {
-    const val = parseFloat(value) || 0;
-    setSavings(val);
-    saveData({ savings: val });
-  };
-
-  // Particles
-  const particles = useMemo(() => {
-    return [...Array(15)].map((_, i) => ({
-      id: i,
-      left: Math.random() * 100,
-      top: Math.random() * 100,
-      delay: Math.random() * 10,
-      duration: 10 + Math.random() * 15,
-      char: theme.particles[Math.floor(Math.random() * theme.particles.length)]
-    }));
-  }, [theme.id]);
-
-  return (
-    <div className="min-h-screen relative overflow-x-hidden font-sans text-slate-800 transition-colors duration-1000 pb-12">
-      {/* ATMOSPHERIC BACKGROUND */}
-      <div className={`fixed inset-0 z-0 bg-slate-950 transition-colors duration-1000`}>
-        <div className={`absolute inset-0 bg-gradient-to-br ${theme.bg} opacity-40 transition-all duration-1000`}></div>
-        <div className={`absolute -top-1/4 -left-1/4 w-full h-full rounded-full ${theme.glow} blur-[140px] animate-pulse`}></div>
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {particles.map(p => (
-            <div 
-              key={p.id} 
-              className="absolute text-2xl opacity-10 animate-float-slow"
-              style={{
-                left: `${p.left}%`,
-                top: `${p.top}%`,
-                animationDelay: `${p.delay}s`,
-                animationDuration: `${p.duration}s`
-              }}
-            >
-              {p.char}
-            </div>
-          ))}
+        <div class="card" style="border: 2px dashed #cbd5e1; background: transparent; cursor: pointer; justify-content: center; align-items: center;">
+            <span style="font-size: 2rem; color: #94a3b8;">+</span>
+            <span style="color: #94a3b8; font-weight: 600;">Add New Module</span>
         </div>
-      </div>
+    </div>
 
-      <style>{`
-        @keyframes float-slow {
-          0% { transform: translateY(0) rotate(0deg); opacity: 0; }
-          20% { opacity: 0.2; }
-          80% { opacity: 0.2; }
-          100% { transform: translateY(-300px) rotate(360deg); opacity: 0; }
+    <script>
+        function openApp(appName) {
+            console.log("Initializing " + appName + "...");
+            // Logic to mount your React App would go here
         }
-        .animate-float-slow { animation: float-slow linear infinite; }
-        .glass-card { 
-          background: rgba(255, 255, 255, 0.03); 
-          backdrop-filter: blur(20px); 
-          border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
-      `}</style>
-
-      <div className="relative z-10 p-4 md:p-8 max-w-7xl mx-auto">
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
-          <div className="space-y-1">
-            <h1 className="text-6xl font-black text-white tracking-tighter drop-shadow-2xl">
-              Finance<span className={`${theme.accent} transition-colors duration-1000`}>Flow</span>
-            </h1>
-            <div className="flex items-center gap-3">
-              <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-white/5 border border-white/10 ${theme.accent}`}>
-                {theme.name} Edition
-              </span>
-              <div className="flex items-center gap-1.5 ml-2">
-                <div className={`w-1.5 h-1.5 rounded-full ${isSyncing ? 'bg-emerald-400 animate-ping' : 'bg-white/20'}`}></div>
-                <span className="text-[10px] font-bold text-white/30 uppercase tracking-tighter">
-                  {isSyncing ? 'Syncing...' : 'Autosaved'}
-                </span>
-              </div>
-            </div>
-          </div>
-          
-          <div className="flex flex-col items-end gap-2">
-            <input 
-              type="month" 
-              value={currentMonth} 
-              onChange={(e) => setCurrentMonth(e.target.value)} 
-              className="bg-white/5 border border-white/10 text-white px-6 py-3 rounded-2xl font-black backdrop-blur-3xl outline-none focus:ring-2 focus:ring-white/20 transition-all shadow-2xl" 
-            />
-          </div>
-        </header>
-
-        {/* Global Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          <SummaryCard label="Gig Inflow" value={totalIncome} icon="💰" theme={theme} />
-          <SummaryCard label="Leftover Cash" value={checkingBalance} icon="🌊" theme={theme} isWarning={checkingBalance < 100} />
-          <SummaryCard label="Daily Logged" value={totalDailySpent} icon="🗒️" theme={theme} />
-          <SummaryCard label="Total Debt" value={totalDebtBalance} icon="📉" theme={theme} isRose />
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <div className="lg:col-span-4 space-y-8">
-            <div className="glass-card p-8 rounded-[2.5rem] shadow-2xl">
-              <h2 className="text-xl font-bold text-white/90 mb-6 flex items-center gap-2">
-                <span>🏦</span> Income & Savings
-              </h2>
-              <div className="space-y-5">
-                 <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
-                    <label className="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-1">Savings Goal</label>
-                    <div className="flex items-center">
-                        <span className="text-white/20 mr-2 font-bold">$</span>
-                        <input 
-                          type="number" 
-                          value={savings || ''} 
-                          onChange={(e) => handleSavingsChange(e.target.value)} 
-                          className="bg-transparent text-2xl font-black text-white outline-none w-full" 
-                          placeholder="0.00" 
-                        />
-                    </div>
-                 </div>
-                 <div className="grid grid-cols-2 gap-3">
-                    {['uber', 'lyft', 'doordash', 'grubhub'].map(platform => (
-                        <div key={platform} className="p-4 rounded-xl bg-black/30 border border-white/5 transition-all hover:border-white/20">
-                            <label className="text-[9px] font-black text-white/20 uppercase tracking-widest block mb-1">{platform}</label>
-                            <div className="flex items-center text-white">
-                                <span className="text-[10px] opacity-20 mr-1">$</span>
-                                <input 
-                                  type="number" 
-                                  value={income[platform] || ''} 
-                                  onChange={(e) => handleIncomeChange(platform, e.target.value)} 
-                                  className="bg-transparent font-bold outline-none w-full text-sm" 
-                                />
-                            </div>
-                        </div>
-                    ))}
-                 </div>
-              </div>
-            </div>
-
-            <div className="glass-card p-8 rounded-[2.5rem] shadow-2xl">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold text-white/90">Fixed Bills</h2>
-                <button onClick={() => setIsEditing(!isEditing)} className={`text-xs font-black uppercase tracking-widest ${theme.accent}`}>
-                  {isEditing ? '[ Save ]' : '[ Edit ]'}
-                </button>
-              </div>
-              <div className="space-y-3 max-h-[380px] overflow-y-auto pr-2 custom-scrollbar">
-                {bills.map((bill, idx) => (
-                  <div key={idx} className="flex justify-between items-center p-4 bg-white/5 rounded-2xl border border-white/5 text-sm group transition-all hover:bg-white/10">
-                    <span className="text-white/80 flex items-center gap-3">
-                        <span className="text-lg opacity-60">{bill.icon}</span>
-                        {isEditing ? (
-                          <input 
-                            className="bg-transparent border-b border-white/20 text-white w-24 outline-none" 
-                            value={bill.name} 
-                            onChange={(e)=>{const n=[...bills]; n[idx].name=e.target.value; setBills(n); saveData({bills:n})}} 
-                          />
-                        ) : bill.name}
-                    </span>
-                    <span className="font-bold text-white">
-                        {isEditing ? (
-                          <input 
-                            type="number" 
-                            className="bg-transparent border-b border-white/20 text-white w-14 text-right outline-none" 
-                            value={bill.amount} 
-                            onChange={(e)=>{const n=[...bills]; n[idx].amount=parseFloat(e.target.value)||0; setBills(n); saveData({bills:n})}} 
-                          />
-                        ) : `$${bill.amount}`}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="lg:col-span-8 space-y-8">
-            <div className="glass-card p-8 rounded-[3rem] shadow-2xl relative overflow-hidden">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-                <div>
-                  <h2 className="text-3xl font-black text-white tracking-tight">Daily Expense Log</h2>
-                  <p className="text-white/40 text-xs font-bold uppercase tracking-wider">Remaining Allowance: <span className={theme.accent}>${checkingBalance.toFixed(2)}</span></p>
-                </div>
-                <button onClick={addExpense} className={`px-8 py-3 rounded-2xl text-xs font-black transition-all shadow-xl bg-white text-slate-900 hover:scale-105 active:scale-95`}>
-                  + NEW TRANSACTION
-                </button>
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm text-white/80">
-                  <thead>
-                    <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-white/20 border-b border-white/10">
-                      <th className="pb-4 pl-4">Date</th>
-                      <th className="pb-4">Description</th>
-                      <th className="pb-4 text-right">Amount</th>
-                      <th className="pb-4 text-center">Delete</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5">
-                    {dailyExpenses.length === 0 && (
-                      <tr><td colSpan="4" className="py-20 text-center text-white/20 italic font-medium tracking-wide">No transactions recorded. All data is saved to your account.</td></tr>
-                    )}
-                    {dailyExpenses.map((exp) => (
-                      <tr key={exp.id} className="group hover:bg-white/5 transition-all">
-                        <td className="py-5 pl-4">
-                          <input type="date" value={exp.date} onChange={(e) => updateExpense(exp.id, 'date', e.target.value)} className="bg-transparent text-white outline-none w-32 font-bold cursor-pointer" />
-                        </td>
-                        <td className="py-5">
-                          <input type="text" placeholder="Coffee, Groceries, etc" value={exp.item} onChange={(e) => updateExpense(exp.id, 'item', e.target.value)} className="bg-transparent text-white outline-none w-full placeholder:text-white/10 font-bold" />
-                        </td>
-                        <td className="py-5 text-right font-black">
-                          <div className="flex items-center justify-end gap-1">
-                            <span className="text-white/20">$</span>
-                            <input type="number" value={exp.amount || ''} onChange={(e) => updateExpense(exp.id, 'amount', parseFloat(e.target.value) || 0)} className="bg-transparent text-white font-black outline-none w-20 text-right focus:text-emerald-400" />
-                          </div>
-                        </td>
-                        <td className="py-5 text-center">
-                          <button onClick={() => removeExpense(exp.id)} className="text-rose-500/20 hover:text-rose-500 transition-colors text-lg">✕</button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                  <tfoot>
-                    <tr>
-                        <td colSpan="2" className="pt-8 pl-4 font-black text-white/20 text-[10px] uppercase tracking-widest">Net Cash Remaining</td>
-                        <td className="pt-8 text-right font-black text-2xl text-white tracking-tighter">
-                          ${checkingBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                        </td>
-                        <td></td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {['venture', 'savor'].map(cardKey => (
-                  <CreditCardBlock 
-                    key={cardKey}
-                    name={cardKey.charAt(0).toUpperCase() + cardKey.slice(1)}
-                    limit={CREDIT_LIMITS[cardKey]}
-                    val={credit[cardKey]}
-                    paid={payments[cardKey]}
-                    mode={inputMode[cardKey]}
-                    theme={theme}
-                    debt={currentBalances[cardKey]}
-                    onValChange={(v) => {const n={...credit,[cardKey]:v}; setCredit(n); saveData({credit:n})}}
-                    onPaidChange={(v) => {const n={...payments,[cardKey]:v}; setPayments(n); saveData({payments:n})}}
-                    onModeToggle={() => {const nm=inputMode[cardKey]==='spent'?'remaining':'spent'; const n={...inputMode,[cardKey]:nm}; setInputMode(n); saveData({inputMode:n})}}
-                  />
-                ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function SummaryCard({ label, value, icon, theme, isWarning, isRose }) {
-  return (
-    <div className={`glass-card p-6 rounded-[2rem] shadow-2xl transition-all duration-1000 group hover:scale-[1.02]`}>
-      <div className="flex justify-between items-start mb-2">
-        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">{label}</span>
-        <span className="text-xl opacity-40 group-hover:opacity-100 transition-opacity">{icon}</span>
-      </div>
-      <div className={`text-3xl font-black tracking-tighter transition-colors duration-1000 ${isRose ? 'text-rose-400' : isWarning ? 'text-amber-400' : theme.accent}`}>
-        ${value.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-      </div>
-    </div>
-  );
-}
-
-function CreditCardBlock({ name, limit, val, paid, mode, theme, debt, onValChange, onPaidChange, onModeToggle }) {
-  const usagePct = Math.min((debt / limit) * 100, 100);
-  const calculatedPurchases = mode === 'remaining' ? Math.max(0, limit - val) : val;
-
-  return (
-    <div className="glass-card p-8 rounded-[3rem] shadow-2xl flex flex-col group transition-all hover:border-white/20">
-      <div className="flex justify-between items-start mb-6">
-        <div>
-          <h3 className="font-black text-white text-lg tracking-tight uppercase">{name} CREDIT</h3>
-          <span className="text-[9px] font-black text-white/20 uppercase tracking-widest block">Limit Pool: ${limit}</span>
-        </div>
-        <button 
-          onClick={onModeToggle} 
-          className={`text-[8px] font-black px-3 py-1.5 rounded-full bg-white/5 border border-white/10 ${theme.accent} hover:bg-white hover:text-black transition-all uppercase`}
-        >
-          {mode === 'spent' ? 'Set Balance' : 'Set Spend'}
-        </button>
-      </div>
-      
-      <div className="space-y-6 flex-grow">
-        <div className="relative">
-            <label className="block text-[10px] font-black text-white/30 uppercase mb-2 tracking-widest">
-              {mode === 'remaining' ? 'Bank Statement Bal' : 'Monthly Accumulation'}
-            </label>
-            <div className="relative group/input">
-                <span className="absolute left-4 top-4 text-white/20 font-black text-xl">$</span>
-                <input 
-                  type="number" 
-                  value={val || ''} 
-                  onChange={e => onValChange(parseFloat(e.target.value) || 0)} 
-                  className="w-full bg-black/40 border border-white/5 rounded-2xl pl-10 py-4 text-white text-2xl font-black outline-none focus:border-white/30 transition-all"
-                  placeholder="0.00"
-                />
-            </div>
-        </div>
-
-        <div className="bg-black/30 p-6 rounded-[2rem] border border-white/5 shadow-inner">
-            <div className="flex justify-between items-end mb-4">
-                <div className="flex flex-col">
-                  <span className="text-[9px] font-black text-white/20 uppercase tracking-widest">{mode === 'remaining' ? 'Calculated Spend' : 'Net Debt'}</span>
-                  <span className="text-2xl font-black text-white tracking-tighter">${calculatedPurchases.toFixed(2)}</span>
-                </div>
-                <div className="text-right">
-                  <span className="text-[9px] font-black text-rose-500/60 uppercase tracking-widest">Owed</span>
-                  <div className="text-lg font-black text-rose-500">${debt.toLocaleString()}</div>
-                </div>
-            </div>
-            <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                <div 
-                  className={`h-full transition-all duration-1000 ${usagePct > 80 ? 'bg-rose-500' : 'bg-white'}`} 
-                  style={{ width: `${usagePct}%` }}
-                ></div>
-            </div>
-            <div className="flex justify-between mt-2">
-               <span className="text-[8px] text-white/20 font-bold uppercase tracking-widest">Usage</span>
-               <span className={`text-[8px] font-bold ${usagePct > 80 ? 'text-rose-500' : 'text-white/40'}`}>{usagePct.toFixed(0)}%</span>
-            </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-        </a>
-
-        <a href="#" class="card">
-            <h2>📅 Daily Activity</h2>
-            <p>Habits & To-do lists</p>
-        </a>
-
-        <a href="#" class="card">
-            <h2>📚 Study</h2>
-            <p>Courses & certifications</p>
-        </a>
-
-        <div class="card add-new">
-            <h2>+</h2>
-            <p>Add New Feature Later</p>
-        </div>
-    </div>
-
+    </script>
 </body>
 </html>
