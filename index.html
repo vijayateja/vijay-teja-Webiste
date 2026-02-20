@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vijay Teja | Personal Dashboard</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; display: flex; flex-direction: column; align-items: center; padding: 50px; }
+        h1 { color: #333; margin-bottom: 30px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; width: 100%; max-width: 900px; }
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-decoration: none; color: #333; text-align: center; transition: 0.3s; border: 2px solid transparent; }
+        .card:hover { transform: translateY(-5px); border-color: #007bff; }
+        .card h2 { margin: 0; color: #007bff; }
+        .add-new { background: #e9ecef; border: 2px dashed #adb5bd; color: #6c757d; }
+    </style>
+</head>
+<body>
+
+    <h1>Vijay Teja's Dashboard</h1>
+
+    <div class="grid">
+        <a href="#" class="card">
+            <h2>🏦 Bank</h2>
+            <p>Financial links & tracking</p>
+        </a>
+
+        <a href="#" class="card">
+            <h2>📅 Daily Activity</h2>
+            <p>Habits & To-do lists</p>
+        </a>
+
+        <a href="#" class="card">
+            <h2>📚 Study</h2>
+            <p>Courses & certifications</p>
+        </a>
+
+        <div class="card add-new">
+            <h2>+</h2>
+            <p>Add New Feature Later</p>
+        </div>
+    </div>
+
+</body>
+</html>
