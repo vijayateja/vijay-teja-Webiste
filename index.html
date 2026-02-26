@@ -3,134 +3,570 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vijay Teja | Personal Dashboard</title>
+    <title>Family Budget | Terminal</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <style>
-        :root {
-            --primary: #007bff;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --text: #1e293b;
-        }
-        body { 
-            font-family: 'Inter', 'Segoe UI', sans-serif; 
-            background: var(--bg); 
-            color: var(--text);
-            margin: 0;
-            padding: 40px 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center; 
-        }
-        .header { text-align: center; margin-bottom: 50px; }
-        .header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 10px; }
-        .header p { color: #64748b; font-size: 1.1rem; }
-
-        .grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-            gap: 25px; 
-            width: 100%; 
-            max-width: 1100px; 
-        }
-
-        .card { 
-            background: var(--card-bg); 
-            padding: 30px; 
-            border-radius: 20px; 
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); 
-            text-decoration: none; 
-            color: inherit; 
-            transition: all 0.3s ease;
-            border: 1px solid rgba(0,0,0,0.05);
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card:hover { 
-            transform: translateY(-8px); 
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
-            border-color: var(--primary);
-        }
-
-        .card .icon { font-size: 2rem; margin-bottom: 15px; }
-        .card h2 { margin: 0; font-size: 1.25rem; color: var(--text); }
-        .card p { color: #64748b; font-size: 0.9rem; margin: 10px 0 20px 0; line-height: 1.5; }
-        
-        .btn-launch {
-            margin-top: auto;
-            background: #f1f5f9;
-            color: var(--primary);
-            padding: 10px;
-            border-radius: 10px;
-            text-align: center;
-            font-weight: 700;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: background 0.2s;
-        }
-        .card:hover .btn-launch {
-            background: var(--primary);
-            color: white;
-        }
-
-        /* Status Badge */
-        .badge {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            background: #dcfce7;
-            color: #166534;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+        :root { --accent: #6366f1; --accent-glow: rgba(99, 102, 241, 0.5); --sidebar-width: 280px; }
+        body { background: #0b0f1a; background-image: radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.08) 0px, transparent 50%); font-family: 'Inter', sans-serif; color: #f8fafc; min-height: 100vh; display: flex; overflow-x: hidden; }
+        h1, h2, h3 { font-family: 'Outfit', sans-serif; }
+        #sidebar { width: var(--sidebar-width); height: 100vh; position: fixed; left: 0; top: 0; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border-right: 1px solid rgba(255, 255, 255, 0.05); display: flex; flex-direction: column; z-index: 50; transition: transform 0.3s ease; }
+        .nav-link { display: flex; align-items: center; gap: 12px; padding: 1rem 1.5rem; margin: 0.25rem 1rem; border-radius: 1rem; color: #94a3b8; font-size: 0.875rem; font-weight: 500; transition: all 0.2s ease; cursor: pointer; text-decoration: none; }
+        .nav-link:hover { background: rgba(255, 255, 255, 0.03); color: white; }
+        .nav-link.active { background: rgba(99, 102, 241, 0.1); color: var(--accent); border: 1px solid rgba(99, 102, 241, 0.2); }
+        #main-content { margin-left: var(--sidebar-width); flex: 1; padding: 2rem; max-width: calc(100vw - var(--sidebar-width)); }
+        .glass-panel { background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(24px) saturate(180%); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 2rem; }
+        .premium-input { background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 1rem; padding: 0.875rem 1.25rem; color: white; transition: all 0.3s ease; }
+        .premium-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); }
+        .btn-primary { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3); transition: all 0.2s ease; }
+        .btn-primary:active { transform: scale(0.98); }
+        section { display: none; animation: fadeIn 0.4s ease-out; }
+        section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 1024px) { #sidebar { transform: translateX(-100%); } #main-content { margin-left: 0; max-width: 100vw; } body.sidebar-open #sidebar { transform: translateX(0); } }
+        #status-toast { position: fixed; bottom: 2rem; right: 2rem; padding: 1rem 2rem; border-radius: 1rem; background: #10b981; color: white; font-weight: bold; transform: translateY(100px); opacity: 0; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 200; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        #status-toast.show { transform: translateY(0); opacity: 1; }
+        select option { background: #0b0f1a; color: white; }
     </style>
 </head>
-<body>
+<body class="sidebar-open">
 
-    <div class="header">
-        <h1>Vijay's Workspace</h1>
-        <p>Select a module to begin your session</p>
-    </div>
+    <div id="status-toast">Configuration Saved</div>
 
-    <div class="grid">
-        <a href="#finance" class="card" onclick="openApp('finance')">
-            <div class="badge">Live Sync</div>
-            <div class="icon">💰</div>
-            <h2>FinanceFlow</h2>
-            <p>Real-time income tracking for Uber, Lyft, and DoorDash with automated expense logging.</p>
-            <div class="btn-launch">Launch App</div>
-        </a>
+    <nav id="sidebar">
+        <div class="p-8">
+            <h1 class="text-2xl font-black tracking-tighter text-white flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-indigo-500"></div> Family<span class="text-indigo-500">Budget</span>
+            </h1>
+            <p id="user-id-display" class="text-[8px] font-mono text-slate-500 truncate mt-2">LINKING CLOUD DATABASE...</p>
+        </div>
+        <div class="flex-1 space-y-1">
+            <a href="javascript:void(0)" onclick="showSection('dashboard')" id="nav-dashboard" class="nav-link active">Dashboard</a>
+            <a href="javascript:void(0)" onclick="showSection('revenue')" id="nav-revenue" class="nav-link">Revenue</a>
+            <a href="javascript:void(0)" onclick="showSection('costs')" id="nav-costs" class="nav-link">Expenses</a>
+            <a href="javascript:void(0)" onclick="showSection('nodes')" id="nav-nodes" class="nav-link">Ledger</a>
+        </div>
+    </nav>
 
-        <a href="#activity" class="card">
-            <div class="icon">📅</div>
-            <h2>Daily Activity</h2>
-            <p>Manage your habits, to-do lists, and productivity metrics in one unified view.</p>
-            <div class="btn-launch">Open Planner</div>
-        </a>
+    <main id="main-content">
+        <!-- Global Time Filter -->
+        <div class="flex flex-wrap gap-4 mb-8 items-center bg-indigo-950/40 p-4 rounded-3xl border border-indigo-500/20 backdrop-blur-md">
+            <div class="flex items-center gap-3 ml-2">
+                <div class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></div>
+                <span class="text-[10px] font-bold uppercase text-slate-400 tracking-widest">Viewing Period</span>
+            </div>
+            <div class="h-4 w-[1px] bg-white/10 mx-2"></div>
+            <select id="global-month-filter" onchange="handleFilterChange()" class="bg-transparent text-white font-bold text-sm focus:outline-none cursor-pointer hover:text-indigo-400 transition-colors">
+                <option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option><option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option><option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option>
+            </select>
+            <select id="global-year-filter" onchange="handleFilterChange()" class="bg-transparent text-white font-bold text-sm focus:outline-none cursor-pointer hover:text-indigo-400 transition-colors">
+                <option value="2023">2023</option><option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option><option value="2028">2028</option><option value="2029">2029</option><option value="2030">2030</option>
+            </select>
+            <button onclick="resetToPresent()" class="ml-auto px-4 py-1.5 bg-white/5 border border-white/10 rounded-xl text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-white hover:bg-white/10 transition-all">
+                Reset to Present
+            </button>
+        </div>
 
-        <a href="#study" class="card">
-            <div class="icon">📚</div>
-            <h2>Study Hub</h2>
-            <p>Access your courses, certifications, and active learning paths.</p>
-            <div class="btn-launch">View Courses</div>
-        </a>
+        <section id="dashboard" class="active">
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-3xl font-bold tracking-tight text-white">System Dashboard</h2>
+                    <p class="text-slate-500 text-sm mt-1">Live encrypted stream from Cloud Ledger.</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <div class="glass-panel p-6"><p class="text-[10px] font-bold uppercase tracking-widest text-emerald-500 mb-2">Checkings (Earned)</p><h3 id="dashTotalIncome" class="text-2xl font-bold">$0.00</h3></div>
+                <div class="glass-panel p-6">
+                    <p class="text-[10px] font-bold uppercase tracking-widest text-rose-500 mb-2">Monthly Target</p>
+                    <h3 id="dashTotalExpenses" class="text-2xl font-bold">$0.00</h3>
+                    <div id="dashBudgetProgress" class="text-[9px] text-slate-500 mt-2 font-mono">UTILIZATION: 0%</div>
+                </div>
+                <div class="glass-panel p-6"><p class="text-[10px] font-bold uppercase tracking-widest text-pink-400 mb-2">Megha Spent</p><h3 id="dashMeghaTotal" class="text-2xl font-bold">$0.00</h3></div>
+                <div class="glass-panel p-6"><p class="text-[10px] font-bold uppercase tracking-widest text-indigo-400 mb-2">Net Cash Flow</p><h3 id="dashNetFlow" class="text-2xl font-bold">$0.00</h3></div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="glass-panel p-8">
+                    <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-6">Allocation</h3>
+                    <div class="h-64"><canvas id="dashChart"></canvas></div>
+                </div>
+                <div class="glass-panel p-8">
+                    <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-6">Infrastructure Status</h3>
+                    <div id="dashNodeSummary" class="space-y-4"></div>
+                </div>
+            </div>
+        </section>
 
-        <div class="card" style="border: 2px dashed #cbd5e1; background: transparent; cursor: pointer; justify-content: center; align-items: center;">
-            <span style="font-size: 2rem; color: #94a3b8;">+</span>
-            <span style="color: #94a3b8; font-weight: 600;">Add New Module</span>
+        <section id="revenue">
+            <div class="glass-panel p-8">
+                <div class="flex justify-between items-end mb-8">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">Historical Revenue Log</h2>
+                        <p class="text-slate-500 text-xs">Viewing period set in top filter.</p>
+                    </div>
+                    <span id="revenue-total-display" class="text-2xl font-black text-indigo-400">$0.00</span>
+                </div>
+                <div class="bg-white/[0.03] border border-white/5 rounded-2xl p-6 mb-8 grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <input type="date" id="entry-date" class="premium-input text-sm">
+                    <select id="entry-source" class="premium-input text-sm">
+                        <option value="Uber">Uber</option>
+                        <option value="Lyft">Lyft</option>
+                        <option value="DoorDash">DoorDash</option>
+                        <option value="GrubHub">GrubHub</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <input type="number" id="entry-amount" placeholder="0.00" class="premium-input text-sm">
+                    <button onclick="handleAddRevenue()" class="btn-primary text-white rounded-xl text-[10px] font-bold uppercase tracking-widest">Add Inflow</button>
+                </div>
+                <table class="w-full text-sm">
+                    <thead><tr class="text-[10px] text-slate-500 uppercase tracking-widest border-b border-white/5"><th class="px-4 py-4 text-left">Date</th><th class="px-4 py-4 text-left">Source</th><th class="px-4 py-4 text-right">Amount</th><th class="px-4 py-4 w-20"></th></tr></thead>
+                    <tbody id="revenue-log-body" class="divide-y divide-white/5"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="costs">
+            <div class="glass-panel p-8">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">Base Operating Costs</h2>
+                        <p class="text-slate-500 text-xs mt-1">Configure your monthly targets here. These define the "Monthly Budget" card.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="saveExpenseConfiguration()" class="px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
+                            Commit Targets
+                        </button>
+                    </div>
+                </div>
+                <div id="fixedExpenseList" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+            </div>
+        </section>
+
+        <section id="nodes">
+            <div class="space-y-8">
+                <div class="glass-panel p-8 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white mb-2">Ledger Infrastructure</h2>
+                        <p class="text-slate-500 text-sm">Persistent tracking for the selected month.</p>
+                    </div>
+                    <button onclick="saveLedgerState()" class="px-6 py-3 bg-indigo-500/10 border border-indigo-500/30 rounded-2xl text-indigo-400 text-[11px] font-bold uppercase tracking-widest hover:bg-indigo-500/20 transition-all">
+                        Refresh Dashboard
+                    </button>
+                </div>
+                <div class="glass-panel p-8">
+                    <div class="grid grid-cols-1 md:grid-cols-6 gap-4 mb-8">
+                        <input type="date" id="credit-date" class="premium-input text-sm">
+                        <select id="credit-node" class="premium-input text-sm">
+                            <option value="venture">Venture (CC)</option>
+                            <option value="savor">Savor (CC)</option>
+                            <option value="debit">Debit Card</option>
+                            <option value="megha">Megha (Person)</option>
+                        </select>
+                        <select id="credit-type" class="premium-input text-sm">
+                            <option value="expense">Expense (-)</option>
+                            <option value="repay">Adjustment/Repay (+)</option>
+                        </select>
+                        <select id="credit-store" class="premium-input text-sm md:col-span-1">
+                            <option value="">Select Category...</option>
+                        </select>
+                        <input type="number" id="credit-cost" placeholder="0.00" class="premium-input text-sm">
+                        <button onclick="handleAddCredit()" class="btn-primary text-white rounded-xl text-[10px] font-bold uppercase tracking-widest">Log Action</button>
+                    </div>
+                    <table class="w-full font-mono text-sm">
+                        <thead><tr class="text-[10px] text-slate-500 uppercase tracking-widest border-b border-white/5"><th class="px-4 py-4 text-left">Date</th><th class="px-4 py-4 text-left">Entity / Merchant</th><th class="px-4 py-4 text-right">Amount</th><th class="px-4 py-4 text-right">Running Total</th><th class="px-4 py-4 w-20"></th></tr></thead>
+                        <tbody id="credit-ledger-body" class="divide-y divide-white/5"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="aiModal" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-950/80 backdrop-blur-xl opacity-0 pointer-events-none transition-all duration-500">
+        <div class="glass-panel !bg-slate-900/90 w-full max-w-xl p-10 scale-95 transition-all duration-500" id="modalFrame">
+            <h3 id="modalTitle" class="text-xl font-bold text-white mb-4 uppercase">System Prompt</h3>
+            <p id="modalContent" class="text-slate-400 mb-8"></p>
+            <div id="modalInputs" class="mb-8 space-y-4"></div>
+            <div class="flex justify-end gap-4">
+                <button onclick="closeModal()" class="text-slate-500 uppercase font-bold text-[10px]">Cancel</button>
+                <button id="modalConfirmBtn" class="btn-primary px-8 py-3 rounded-xl text-white font-bold text-[10px] uppercase">Proceed</button>
+            </div>
         </div>
     </div>
 
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, onSnapshot, collection, addDoc, deleteDoc, updateDoc, setDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global State
+        const today = new Date();
+        window.user = null;
+        window.revenueEntries = [];
+        window.creditTransactions = [];
+        window.fixedExpenses = [];
+        window.currentViewMonth = today.getMonth();
+        window.currentViewYear = today.getFullYear();
+        window.localExpenseChanges = {};
+        window.dashChart = null;
+        
+        window.creditLimits = { venture: 1000, savor: 400, debit: 0, megha: 0 };
+
+        const BASELINE_COSTS = [
+            { name: "Housing", amount: 2200 },
+            { name: "Groceries", amount: 1000 },
+            { name: "Auto", amount: 460 },
+            { name: "Gas", amount: 450 },
+            { name: "Utilities", amount: 200 },
+            { name: "Mobile & Internet", amount: 160 },
+            { name: "Insurance", amount: 160 }
+        ];
+
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'portfolio-os-v2';
+
+        window.updateFilteredViews = () => {
+            renderRevenueLog();
+            renderCreditLedger();
+            renderExpenses();
+            updateAll();
+        };
+
+        const renderRevenueLog = () => {
+            const tbody = document.getElementById('revenue-log-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            const filtered = window.revenueEntries.filter(e => {
+                const d = new Date(e.date + 'T12:00:00');
+                return d.getMonth() === window.currentViewMonth && d.getFullYear() === window.currentViewYear;
+            });
+            filtered.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(e => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td class="py-4 px-4 text-slate-500 font-mono text-[11px]">${e.date}</td><td class="py-4 px-4 text-white font-bold">${e.source}</td><td class="py-4 px-4 text-right text-emerald-400 font-bold">$${e.amount.toFixed(2)}</td><td class="py-4 px-4 text-right"><button onclick="window.removeRevenueFromCloud('${e.id}')" class="text-slate-800 hover:text-rose-500">✕</button></td>`;
+                tbody.appendChild(tr);
+            });
+            document.getElementById('revenue-total-display').innerText = `$${filtered.reduce((s,e)=>s+e.amount,0).toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        };
+
+        const renderCreditLedger = () => {
+            const tbody = document.getElementById('credit-ledger-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            let running = { venture: 0, savor: 0, debit: 0, megha: 0 };
+            const allSorted = [...(window.creditTransactions || [])].sort((a,b) => new Date(a.date) - new Date(b.date));
+            const rows = allSorted.map(t => {
+                const nodeKey = t.node.toLowerCase();
+                if (running.hasOwnProperty(nodeKey)) running[nodeKey] += t.cost;
+                const d = new Date(t.date + 'T12:00:00');
+                return { ...t, currentRunning: running[nodeKey] || 0, viewMonth: d.getMonth(), viewYear: d.getFullYear() };
+            });
+            rows.filter(r => r.viewMonth === window.currentViewMonth && r.viewYear === window.currentViewYear)
+                .reverse().forEach(t => {
+                    const tr = document.createElement('tr');
+                    const nodeLabel = t.node.toLowerCase();
+                    const badgeClass = nodeLabel === 'megha' ? 'text-pink-400' : (nodeLabel === 'debit' ? 'text-emerald-400' : 'text-indigo-400');
+                    tr.innerHTML = `
+                        <td class="py-4 px-4 text-slate-500 font-mono text-[11px]">${t.date}</td>
+                        <td class="py-4 px-4 text-white">${t.store} <span class="text-[8px] ${badgeClass} font-bold px-1 border border-white/10 rounded ml-2 uppercase">${t.node}</span></td>
+                        <td class="py-4 px-4 text-right ${t.type === 'repay' ? 'text-emerald-400' : 'text-rose-400'} font-bold">$${Math.abs(t.cost).toFixed(2)}</td>
+                        <td class="py-4 px-4 text-right text-slate-400 font-mono">$${t.currentRunning.toFixed(2)}</td>
+                        <td class="py-4 px-4 text-right"><button onclick="window.removeCreditFromCloud('${t.id}')" class="text-slate-800 hover:text-rose-500">✕</button></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+        };
+
+        const updateAll = () => {
+            const currentExpenses = window.fixedExpenses.map(e => window.localExpenseChanges[e.id] || e);
+            const totalMonthlyTarget = currentExpenses.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
+            
+            const filteredLedger = window.creditTransactions.filter(e => {
+                const d = new Date(e.date + 'T12:00:00');
+                return d.getMonth() === window.currentViewMonth && d.getFullYear() === window.currentViewYear;
+            });
+
+            const actualSpentOnTarget = currentExpenses.reduce((s, exp) => {
+                const spent = filteredLedger
+                    .filter(t => t.store === exp.name && t.type === 'expense')
+                    .reduce((total, t) => total + t.cost, 0);
+                return s + spent;
+            }, 0);
+
+            const filteredRev = window.revenueEntries.filter(e => {
+                const d = new Date(e.date + 'T12:00:00');
+                return d.getMonth() === window.currentViewMonth && d.getFullYear() === window.currentViewYear;
+            });
+            const grossEarned = filteredRev.reduce((s, e) => s + e.amount, 0);
+
+            const meghaThisPeriod = filteredLedger.filter(t => t.node.toLowerCase() === 'megha').reduce((s, t) => s + t.cost, 0);
+            const debitThisPeriod = filteredLedger.filter(t => t.node.toLowerCase() === 'debit').reduce((s, t) => s + t.cost, 0);
+            const ccRepayments = filteredLedger.filter(c => c.type === 'repay' && !['megha', 'debit'].includes(c.node.toLowerCase())).reduce((s,c) => s + Math.abs(c.cost), 0);
+
+            document.getElementById('dashTotalIncome').innerText = `$${grossEarned.toLocaleString(undefined, {minimumFractionDigits: 2})}`; 
+            document.getElementById('dashTotalExpenses').innerText = `$${totalMonthlyTarget.toLocaleString(undefined, {minimumFractionDigits: 2})}`; 
+            const utilization = totalMonthlyTarget > 0 ? ((actualSpentOnTarget / totalMonthlyTarget) * 100).toFixed(0) : 0;
+            document.getElementById('dashBudgetProgress').innerText = `UTILIZATION: ${utilization}% ($${actualSpentOnTarget.toLocaleString()})`;
+
+            document.getElementById('dashMeghaTotal').innerText = `$${meghaThisPeriod.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            
+            const netVal = grossEarned - ccRepayments - actualSpentOnTarget - debitThisPeriod;
+            document.getElementById('dashNetFlow').innerText = `$${netVal.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+
+            if (window.dashChart) {
+                window.dashChart.data.labels = currentExpenses.map(e => e.name);
+                window.dashChart.data.datasets[0].data = currentExpenses.map(e => e.amount);
+                window.dashChart.update();
+            }
+
+            const summaryCont = document.getElementById('dashNodeSummary');
+            let usage = { venture: 0, savor: 0, debit: 0, megha: 0 };
+            filteredLedger.forEach(t => {
+                const nodeKey = t.node.toLowerCase();
+                if (usage.hasOwnProperty(nodeKey)) usage[nodeKey] += t.cost;
+            });
+            
+            const displayNodes = Object.keys(window.creditLimits).filter(node => node !== 'megha');
+            summaryCont.innerHTML = displayNodes.map(node => {
+                const totalUsed = usage[node] || 0;
+                const limit = window.creditLimits[node];
+                if (limit === 0 && node === 'debit') {
+                    return `<div class="p-4 bg-white/[0.02] rounded-xl border border-white/5 flex justify-between items-center group">
+                        <span class="text-[10px] font-bold text-slate-500 uppercase">${node}</span>
+                        <div class="text-right">
+                             <span class="text-xs font-black text-white">$${totalUsed.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                             <div class="text-[8px] text-slate-500 uppercase mt-0.5">Total Spent</div>
+                        </div>
+                    </div>`;
+                }
+                const rem = limit - totalUsed;
+                const progressWidth = Math.max(0, Math.min(100, (totalUsed / limit) * 100));
+                return `<div class="p-4 bg-white/[0.02] rounded-xl border border-white/5 space-y-3 group">
+                    <div class="flex justify-between items-start">
+                        <div class="cursor-pointer" onclick="window.triggerEditLimit('${node}')">
+                            <span class="text-[10px] font-bold text-indigo-400 group-hover:text-indigo-300 transition-colors uppercase">${node} <span class="text-[8px] opacity-0 group-hover:opacity-100 ml-1">✎</span></span>
+                            <div class="text-[8px] text-slate-600 uppercase mt-0.5">Total Limit: $${limit.toLocaleString()}</div>
+                        </div>
+                        <div class="flex flex-col items-end">
+                            <span class="text-xs font-black ${rem < 50 ? 'text-rose-500' : 'text-emerald-400'}">$${rem.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                            <span class="text-[8px] text-slate-500 uppercase mt-0.5">Remaining</span>
+                        </div>
+                    </div>
+                    <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                        <div class="h-full ${progressWidth > 90 ? 'bg-rose-500' : 'bg-indigo-500'}" style="width: ${progressWidth}%"></div>
+                    </div>
+                    <div class="flex justify-between items-center pt-1 border-t border-white/5">
+                        <span class="text-[9px] font-mono text-slate-400">Used: <span class="text-white font-bold">$${totalUsed.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></span>
+                        <button onclick="window.triggerQuickRepay('${node}')" class="text-[8px] font-bold text-emerald-500 uppercase tracking-widest px-2 py-1 rounded bg-emerald-500/5 border border-emerald-500/10 hover:bg-emerald-500/10 transition-all">Settle</button>
+                    </div>
+                </div>`;
+            }).join('');
+
+            const storeDropdown = document.getElementById('credit-store');
+            if (storeDropdown) {
+                const currentVal = storeDropdown.value;
+                storeDropdown.innerHTML = `<option value="">Select Category...</option>` + 
+                    currentExpenses.map(e => `<option value="${e.name}">${e.name}</option>`).join('') +
+                    `<option value="Other">Other Expense</option>`;
+                storeDropdown.value = currentVal;
+            }
+        };
+
+        window.renderExpenses = () => {
+            const list = document.getElementById('fixedExpenseList');
+            if (!list) return;
+            list.innerHTML = '';
+            const filteredLedger = window.creditTransactions.filter(e => {
+                const d = new Date(e.date + 'T12:00:00');
+                return d.getMonth() === window.currentViewMonth && d.getFullYear() === window.currentViewYear;
+            });
+            window.fixedExpenses.forEach((e, i) => {
+                const item = window.localExpenseChanges[e.id] || e;
+                const periodPaid = filteredLedger
+                    .filter(t => t.store === item.name && t.type === 'expense')
+                    .reduce((s, t) => s + t.cost, 0);
+                const remaining = Math.max(0, item.amount - periodPaid);
+                const progress = Math.min(100, (periodPaid / item.amount) * 100) || 0;
+                const isComplete = remaining <= 0;
+                const card = document.createElement('div');
+                card.className = `p-6 rounded-2xl border transition-all cursor-pointer ${isComplete ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-white/[0.03] border-white/5 hover:border-white/20'}`;
+                card.onclick = () => window.editExpenseItem(i);
+                card.innerHTML = `
+                    <div class="flex justify-between mb-4">
+                        <div class="max-w-[120px]">
+                            <span class="text-[10px] font-bold ${isComplete ? 'text-emerald-500' : 'text-slate-500'} uppercase block tracking-wider truncate">${item.name}</span>
+                            <span class="text-[10px] text-slate-500 mt-1 block">Goal: <span class="text-white font-bold">$${item.amount.toLocaleString()}</span></span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[10px] font-bold uppercase block tracking-wider ${isComplete ? 'text-emerald-500' : 'text-slate-500'}">Balance Due</span>
+                            <span class="text-xl font-black ${isComplete ? 'text-emerald-400' : 'text-rose-400'}">$${remaining.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                        </div>
+                    </div>
+                    <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden mb-2">
+                        <div class="h-full ${isComplete ? 'bg-emerald-500' : 'bg-indigo-500'} transition-all duration-500" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="flex justify-between items-center text-[9px] font-mono">
+                        <span class="${isComplete ? 'text-emerald-500' : 'text-slate-500'} uppercase font-bold">Logged: $${periodPaid.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        };
+
+        const setupDataListeners = async (uid) => {
+            const expRef = collection(db, 'artifacts', appId, 'users', uid, 'fixed_expenses');
+            const limitRef = collection(db, 'artifacts', appId, 'users', uid, 'credit_limits');
+            const snapExp = await getDocs(expRef);
+            if (snapExp.empty) { for (const cost of BASELINE_COSTS) { await addDoc(expRef, cost); } }
+            const snapLimits = await getDocs(limitRef);
+            if (snapLimits.empty) { await setDoc(doc(limitRef, 'default'), window.creditLimits); }
+            onSnapshot(collection(db, 'artifacts', appId, 'users', uid, 'revenue'), (snap) => {
+                window.revenueEntries = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                window.updateFilteredViews();
+            });
+            onSnapshot(collection(db, 'artifacts', appId, 'users', uid, 'credit_ledger'), (snap) => {
+                window.creditTransactions = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                window.updateFilteredViews();
+            });
+            onSnapshot(collection(db, 'artifacts', appId, 'users', uid, 'fixed_expenses'), (snap) => {
+                window.fixedExpenses = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                window.updateFilteredViews();
+            });
+            onSnapshot(doc(db, 'artifacts', appId, 'users', uid, 'credit_limits', 'default'), (snap) => {
+                if (snap.exists()) { window.creditLimits = snap.data(); window.updateFilteredViews(); }
+            });
+        };
+
+        window.addRevenueToCloud = async (entry) => { if (window.user) await addDoc(collection(db, 'artifacts', appId, 'users', window.user.uid, 'revenue'), entry); };
+        window.removeRevenueFromCloud = async (id) => { if (window.user) await deleteDoc(doc(db, 'artifacts', appId, 'users', window.user.uid, 'revenue', id)); };
+        window.addCreditToCloud = async (tx) => { if (window.user) await addDoc(collection(db, 'artifacts', appId, 'users', window.user.uid, 'credit_ledger'), tx); };
+        window.removeCreditFromCloud = async (id) => { if (window.user) await deleteDoc(doc(db, 'artifacts', appId, 'users', window.user.uid, 'credit_ledger', id)); };
+        window.updateExpenseInCloud = async (id, data) => { if (window.user) await updateDoc(doc(db, 'artifacts', appId, 'users', window.user.uid, 'fixed_expenses', id), data); };
+        window.updateLimitsInCloud = async (data) => { if (window.user) await setDoc(doc(db, 'artifacts', appId, 'users', window.user.uid, 'credit_limits', 'default'), data); };
+
+        const initAuth = async () => {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) { await signInWithCustomToken(auth, __initial_auth_token); } 
+            else { await signInAnonymously(auth); }
+        };
+
+        onAuthStateChanged(auth, (u) => {
+            window.user = u;
+            if (u) {
+                document.getElementById('user-id-display').innerText = `NODE: ${u.uid}`;
+                setupDataListeners(u.uid);
+            }
+        });
+
+        window.addEventListener('load', () => {
+            const now = new Date();
+            document.getElementById('global-month-filter').value = now.getMonth();
+            document.getElementById('global-year-filter').value = now.getFullYear();
+            window.dashChart = new Chart(document.getElementById('dashChart').getContext('2d'), {
+                type: 'doughnut',
+                data: { labels: [], datasets: [{ data: [], backgroundColor: ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#a855f7'], borderWidth: 0 }] },
+                options: { maintainAspectRatio: false, cutout: '85%', plugins: { legend: { display: false } } }
+            });
+            initAuth();
+            document.getElementById('entry-date').valueAsDate = new Date();
+            document.getElementById('credit-date').valueAsDate = new Date();
+        });
+    </script>
+
     <script>
-        function openApp(appName) {
-            console.log("Initializing " + appName + "...");
-            // Logic to mount your React App would go here
+        function showToast(msg, color = "#10b981") {
+            const toast = document.getElementById('status-toast');
+            toast.innerText = msg; toast.style.background = color;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
         }
+        window.resetToPresent = () => {
+            const now = new Date();
+            document.getElementById('global-month-filter').value = now.getMonth();
+            document.getElementById('global-year-filter').value = now.getFullYear();
+            window.currentViewMonth = now.getMonth();
+            window.currentViewYear = now.getFullYear();
+            window.updateFilteredViews?.();
+            showToast("System Reset", "#6366f1");
+        };
+        window.handleAddRevenue = async () => {
+            const amount = parseFloat(document.getElementById('entry-amount').value) || 0;
+            if (amount <= 0) return;
+            await window.addRevenueToCloud?.({ date: document.getElementById('entry-date').value, source: document.getElementById('entry-source').value, amount, timestamp: Date.now() });
+            document.getElementById('entry-amount').value = '';
+            showToast("Revenue Logged");
+        };
+        window.handleAddCredit = async () => {
+            const cost = parseFloat(document.getElementById('credit-cost').value) || 0;
+            const storeSelection = document.getElementById('credit-store').value;
+            const type = document.getElementById('credit-type').value;
+            if (cost <= 0 || !storeSelection) return;
+            await window.addCreditToCloud?.({
+                date: document.getElementById('credit-date').value, node: document.getElementById('credit-node').value,
+                store: storeSelection, type: type, cost: cost * (type === 'repay' ? -1 : 1), timestamp: Date.now()
+            });
+            document.getElementById('credit-cost').value = '';
+            document.getElementById('credit-store').value = '';
+            showToast("Action Recorded");
+        };
+        window.triggerQuickRepay = (node) => {
+            document.getElementById('modalTitle').innerText = `Settle ${node.toUpperCase()}`;
+            document.getElementById('modalInputs').innerHTML = `<div class="space-y-4">
+                <input type="date" id="repay-date" class="premium-input w-full" value="${new Date().toISOString().split('T')[0]}">
+                <input type="number" id="repay-amount" class="premium-input w-full" placeholder="Repayment Amount ($)">
+            </div>`;
+            document.getElementById('modalConfirmBtn').onclick = async () => {
+                const amount = parseFloat(document.getElementById('repay-amount').value) || 0;
+                if (amount <= 0) return;
+                await window.addCreditToCloud?.({
+                    date: document.getElementById('repay-date').value, node: node,
+                    store: "Balance Repayment", type: 'repay', cost: -amount, timestamp: Date.now()
+                });
+                closeModal();
+            };
+            document.getElementById('aiModal').classList.remove('opacity-0', 'pointer-events-none');
+        };
+        window.triggerEditLimit = (node) => {
+            document.getElementById('modalTitle').innerText = `Edit ${node.toUpperCase()} Limit`;
+            document.getElementById('modalInputs').innerHTML = `<input type="number" id="edit-limit-val" class="premium-input w-full" value="${window.creditLimits[node]}">`;
+            document.getElementById('modalConfirmBtn').onclick = async () => {
+                const newVal = parseFloat(document.getElementById('edit-limit-val').value) || 0;
+                await window.updateLimitsInCloud?.({ ...window.creditLimits, [node]: newVal });
+                closeModal();
+            };
+            document.getElementById('aiModal').classList.remove('opacity-0', 'pointer-events-none');
+        };
+        window.saveLedgerState = async () => { window.updateFilteredViews?.(); showToast("Refreshed"); };
+        window.saveExpenseConfiguration = async () => {
+            for (const id in window.localExpenseChanges) {
+                await window.updateExpenseInCloud?.(id, { amount: window.localExpenseChanges[id].amount });
+            }
+            window.localExpenseChanges = {}; showToast("Targets Saved");
+        };
+        window.editExpenseItem = (index) => {
+            const item = window.fixedExpenses[index];
+            document.getElementById('modalTitle').innerText = `Target: ${item.name}`;
+            document.getElementById('modalInputs').innerHTML = `<input type="number" id="edit-exp-total" class="premium-input w-full" value="${item.amount}">`;
+            document.getElementById('modalConfirmBtn').onclick = () => {
+                window.localExpenseChanges[item.id] = { ...item, amount: parseFloat(document.getElementById('edit-exp-total').value) || 0 };
+                window.renderExpenses(); closeModal();
+            };
+            document.getElementById('aiModal').classList.remove('opacity-0', 'pointer-events-none');
+        };
+        window.closeModal = () => document.getElementById('aiModal').classList.add('opacity-0', 'pointer-events-none');
+        window.handleFilterChange = () => {
+            window.currentViewMonth = parseInt(document.getElementById('global-month-filter').value);
+            window.currentViewYear = parseInt(document.getElementById('global-year-filter').value);
+            window.updateFilteredViews?.();
+        };
+        window.showSection = (id) => {
+            document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.getElementById(id === 'dashboard' ? 'nav-dashboard' : 'nav-'+id).classList.add('active');
+        };
     </script>
 </body>
 </html>
